@@ -8,6 +8,7 @@ class KVCommands(object):
     PUT = 0x01
     GET = 0x02
     DELETE = 0x03
+    SHUTDOWN = 0x04
 
 KVSuccess = 0x00
 
@@ -46,8 +47,9 @@ class KeyValueClient(object):
     get = command_function(KVCommands.GET)
     put = command_function(KVCommands.PUT)
     delete = command_function(KVCommands.DELETE)
+    shutdown = command_function(KVCommands.SHUTDOWN)
 
-    def send_command(self, command_value, key, value=None):
+    def send_command(self, command_value, key=None, value=None):
         if command_value in [KVCommands.GET, KVCommands.DELETE]:
             data = struct.pack('b32s', command_value, key)
         elif command_value is KVCommands.PUT:
