@@ -72,6 +72,17 @@ class TestKVStore(object):
         assert response is None
         assert socket.closed
 
+    def test_shutdown(self):
+        kv_store = KeyValueClient('192.168.1.100:5665')
+        socket = MockSocket(['\x00'])
+        with patch('kvclient.base.create_connection', socket):
+            response = kv_store.shutdown()
+
+        assert socket.connection_info == ('192.168.1.100', 5665)
+        assert socket.sent_value == '\x04'
+        assert response is None
+        assert socket.closed
+
     def test_run_command_invalid_key(self):
         kv_store = KeyValueClient('192.168.1.100:5665')
         socket = MockSocket(['\x01'])
@@ -111,7 +122,7 @@ class TestKVStore(object):
 @pytest.mark.integration
 class TestKVStoreLive(object):
     def test_life_cycle(self):
-        kv_store = KeyValueClient('plonk.cs.uwaterloo.ca:6767')
+        kv_store = KeyValueClient('squirly.ca:9090')
         assert kv_store.put('my_value', 'test_data') is None
         assert kv_store.get('my_value').rstrip('\x00') == 'test_data'
         assert kv_store.put('my_value', 'another_test') is None
