@@ -7,6 +7,9 @@ EECE 411 - Key Value Client
 Installation
 ------------
 
+Depending on your platform, you may need gcc or another c compiler install in order to compile gevent.
+On Ubuntu installing python-dev is sufficient.
+
 To install, simply:
 
 .. code-block:: bash
@@ -15,6 +18,7 @@ To install, simply:
 
 Usage
 -----
+To use the basic Key Value client:
 
 .. code-block:: python
 
@@ -32,6 +36,23 @@ Usage
         client.get(KEY)
     except InvalidKeyError, error:
         print(str(error))
+
+To run tests:
+
+.. code-block:: python
+
+    from testing.test_types import get_test_from_string
+    from pprint import pprint
+
+    SERVER = 'squirly.ca:9090'
+    TEST_NAME = 'simple_compliance'
+
+    test = get_test_from_string(TEST_NAME, [SERVER])
+
+    results = test.run()
+
+    for result in results:
+        pprint(result.to_dict())
 
 Development
 -----------

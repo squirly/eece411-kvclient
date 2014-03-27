@@ -20,6 +20,8 @@ def command_function(command_value):
 
 
 class KeyValueClient(object):
+    yield_loop = None
+
     def __init__(self, address):
         address_components = address.split(':')
         if len(address_components) != 2:
@@ -74,5 +76,7 @@ class KeyValueClient(object):
     def receive_bytes(self, size):
         data = bytearray()
         while len(data) < size:
+            if self.yield_loop is not None:
+                self.yield_loop()
             data.extend(self.socket.recv(size - len(data)))
         return data
