@@ -95,7 +95,7 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
                 map(self.get_node_name, self.running_nodes),
                 super(ClusteredComplianceTest, self).run_compliance_test(test_set)
             ))
-        self.results.append(TextTestResult('Last test took:', str(time.span.total_seconds()) + 's'))
+        self.results.append(TextTestResult('Last test took:', str(time.span.total_seconds()-rests*self.rest_time) + 's'))
         l.info('Compliance test finished in ' + str(time.span.total_seconds()-rests*self.rest_time) + 's')
 
     def rest(self):
