@@ -107,9 +107,7 @@ class MassTestBase(Test):
         return self.run_compliance_test(self.test_set)
 
     def run_compliance_test(self, test_set):
-        self.value_one = random.random()
-        self.value_two = random.random()
-        self.keys = []
+        self.reset_test()
 
         key_groups = grouper(self.key_space_generator(), self.key_count/self.concurrent_clients)
 
@@ -135,6 +133,11 @@ class MassTestBase(Test):
             final_results.append(result)
 
         return final_results
+
+    def reset_test(self):
+        self.value_one = random.random()
+        self.value_two = random.random()
+        self.keys = []
 
     @test_case('test_put')
     def test_put(self, key, version):
