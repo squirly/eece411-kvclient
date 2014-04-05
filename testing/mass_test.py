@@ -104,11 +104,10 @@ class MassTestBase(Test):
         ]
 
     def run_test(self):
+        self.reset_test()
         return self.run_compliance_test(self.test_set)
 
     def run_compliance_test(self, test_set):
-        self.reset_test()
-
         key_groups = grouper(self.key_space_generator(), self.key_count/self.concurrent_clients)
 
         group_tests = []

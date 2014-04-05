@@ -1,10 +1,13 @@
+import gevent
 from testing.throughput_test import ThroughputTestBase
 from mock import MagicMock
 
 
 class MockThroughputTest(ThroughputTestBase):
     def get_client(self):
-        return self.client
+        client = MagicMock()
+        client.get.return_value = '1'
+        return client
 
 
 class TestThroughputTest(object):
@@ -14,7 +17,9 @@ class TestThroughputTest(object):
         test.client = MagicMock()
 
         test. \
-            set_test_length_seconds(10). \
+            set_test_length_seconds(0.1). \
             set_client_counts([1, 2, 3, 4])
 
-        test.run_test()
+        results = test.run_test()
+
+        results.get()

@@ -38,7 +38,7 @@ def time_it():
 
 class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
     shutdown_timeout = 30
-    rest_time = 30
+    rest_time = 15
     shutdown_fraction = 0.5
 
     def set_shutdown_fraction(self, shutdown_fraction=0.5):
@@ -70,23 +70,47 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
             self.test_get(keys, self.value_three),
         ]
 
+    def put_test_set(self, keys):
+        return [
+            self.test_put(keys, self.value_persist),
+        ]
+
+    def get_test_set(self, keys):
+        return [
+            self.test_get(keys, self.value_persist),
+        ]
+
     def run_test(self):
         self.shutdown_nodes = []
-        self.value_three = random.random()
         self.running_nodes = self.resolved_addresses.values()
 
         if len(self.running_nodes) == 0:
             self.results.append(TextTestResult('Test failed', 'No available nodes.'))
             return
+
+        self.reset_test()
         self.run_compliance_test(self.large_test_set, 7)
+
+        self.reset_test()
+        self.run_compliance_test(self.put_test_set, 0)
         self.run_node_shutdown()
         self.rest()
         self.test_down_nodes()
         if len(self.running_nodes) == 0:
             raise TestError(TextTestResult())
+        self.run_compliance_test(self.get_test_set, 0)
+
+        self.reset_test()
         self.run_compliance_test(self.quick_test_set, 1)
         self.rest()
+
+        self.reset_test()
         self.run_compliance_test(self.large_test_set, 7)
+
+    def reset_test(self):
+        self.value_three = random.random()
+        self.value_persist = random.random()
+        super(ClusteredComplianceTest, self).reset_test()
 
     def run_compliance_test(self, test_set, rests):
         l.info('Running compliance test.')
