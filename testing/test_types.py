@@ -47,9 +47,14 @@ def get_test_from_string(test_name, nodes):
             set_key_count(10240). \
             set_concurrency(256). \
             set_timeout(5)
-    elif test_name == 'phase_4':
+    elif test_name == 'simple_phase_4':
         return ClusteredComplianceTest(nodes). \
             set_key_count(4096). \
+            set_concurrency(128). \
+            set_timeout(10)
+    elif test_name == 'phase_4':
+        return ClusteredComplianceTest(nodes). \
+            set_key_count(10240). \
             set_concurrency(128). \
             set_timeout(10)
     else:
