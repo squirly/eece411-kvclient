@@ -19,7 +19,9 @@ class TestClusteredComplianceTest(object):
         test.client = MagicMock()
         test.value_one = 1
         test.value_two = 2
+        test.value_three = 3
         test.keys = range(0, 8)
+        test.value_persist = 1
         test.results = []
 
         test.resolved_addresses = {'node1.com:9000': '1.2.3.4:9000',
