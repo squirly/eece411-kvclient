@@ -1,7 +1,6 @@
 from testing.rolling_shutdown_test import RollingShutdownTest
 from mock import MagicMock
-from kvclient.base import KeyValueClient
-from testing.client import TestClient
+
 
 class MockRollingShutdownTest(RollingShutdownTest):
     def get_client(self):
@@ -47,5 +46,7 @@ class TestRollingShutdownTest(object):
         assert test.shutdown_fraction == 0.5
 
         assert len(test.running_nodes) == 2
-        assert len(test.failed_nodes) == 2
+        assert len(test.failed_nodes) == 1
         assert len(test.shutdown_nodes) == 2
+
+        assert test.client.get.call_count == 32

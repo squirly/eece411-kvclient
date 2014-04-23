@@ -24,6 +24,7 @@ class TestClusteredComplianceTest(object):
         test.value_persist = 1
         test.results = []
 
+        test.set_timeout(0)
         test.resolved_addresses = {'node1.com:9000': '1.2.3.4:9000',
                                    'node2.com:9000': '4.3.2.1:9000',
                                    'node3.com:9000': '2.3.4.1:9000',

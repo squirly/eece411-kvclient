@@ -20,4 +20,6 @@ class TestThroughputTest(object):
             set_test_length_seconds(0.1). \
             set_client_counts([1, 2, 3, 4])
 
-        test.run_test()
+        results = test.run_test()
+
+        assert len(results) is 4
