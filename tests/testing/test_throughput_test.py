@@ -1,4 +1,3 @@
-import gevent
 from testing.throughput_test import ThroughputTestBase
 from mock import MagicMock
 

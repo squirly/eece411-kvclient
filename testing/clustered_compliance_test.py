@@ -37,12 +37,20 @@ def time_it():
 
 
 class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
+    shutdown_fraction = 0.5
     shutdown_timeout = 30
     rest_time = 15
-    shutdown_fraction = 0.5
 
-    def set_shutdown_fraction(self, shutdown_fraction=0.5):
+    def set_shutdown_fraction(self, shutdown_fraction):
         self.shutdown_fraction = shutdown_fraction
+        return self
+
+    def set_shutdown_timeout(self, shutdown_timeout):
+        self.shutdown_timeout = shutdown_timeout
+        return self
+
+    def set_rest_time(self, rest_time):
+        self.rest_time = rest_time
         return self
 
     def large_test_set(self, keys):
@@ -81,7 +89,6 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
         ]
 
     def run_test(self):
-        self.shutdown_nodes = []
         self.running_nodes = self.resolved_addresses.values()
 
         if len(self.running_nodes) == 0:
@@ -108,11 +115,12 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
         self.run_compliance_test(self.large_test_set, 7)
 
     def reset_test(self):
+        super(ClusteredComplianceTest, self).reset_test()
         self.value_three = random.random()
         self.value_persist = random.random()
         super(ClusteredComplianceTest, self).reset_test()
 
-    def run_compliance_test(self, test_set, rests):
+    def run_compliance_test(self, test_set, rests=0):
         l.info('Running compliance test.')
         with time_it() as time:
             self.results.append(ClusteredTestResult(
@@ -131,49 +139,61 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
         return super(ClusteredComplianceTest, self).get_client(addresses)
 
     def run_node_shutdown(self):
-        results = []
-        failed_results = []
+        self.setup_node_shutdown()
         shutdown_count = math.floor(len(self.running_nodes)*self.shutdown_fraction)
-        self.failed_nodes = set()
         while len(self.shutdown_nodes) + len(self.failed_nodes) < shutdown_count:
-            address = random.choice(self.running_nodes)
-            timeout = Timeout(self.shutdown_timeout, TestTimeout())
-            timeout.start()
-            try:
-                TestClient(address).shutdown()
-                results.append(TextTestResult(self.get_node_name(address), 'Shutdown signal sent.'))
-                self.running_nodes.remove(address)
-                self.shutdown_nodes.append(address)
-                l.info('Shutdown node ' + address)
-            except TestTimeout:
-                self.failed_nodes.add(address)
-                failed_results.append(TextTestResult(self.get_node_name(address), 'Node timed-out when signaled to shutdown.'))
-                l.exception('Shutdown node ' + address)
-            except KeyValueError, error:
-                self.failed_nodes.add(address)
-                failed_results.append(TextTestResult(self.get_node_name(address), 'Node returned error when signaled to shutdown. ' + str(error)))
-                l.exception('Shutdown node ' + address)
-            except Exception, error:
-                self.failed_nodes.add(address)
-                failed_results.append(TextTestResult(self.get_node_name(address), 'Node does not want to shutdown. ' + str(error)))
-                l.exception('Shutdown node ' + address)
-            finally:
-                timeout.cancel()
+            self.shutdown_node()
+        self.summarize_node_shutdown()
 
-        if len(failed_results) > 0:
-            self.results.append(ClusteredTestResult(
-                map(self.get_node_name, self.failed_nodes),
-                failed_results
-            ))
+    def setup_node_shutdown(self):
+        self.shutdown_results = []
+        self.shutdown_failed_results = []
+        self.shutdown_nodes = []
+        self.failed_nodes = set()
+
+    def shutdown_node(self):
+        address = random.choice(self.running_nodes)
+        node_name = self.get_node_name(address)
+        timeout = Timeout(self.shutdown_timeout, TestTimeout())
+        timeout.start()
+        try:
+            self.get_client(address).shutdown()
+            self.shutdown_results.append(TextTestResult(node_name, 'Shutdown signal sent.'))
+            self.shutdown_nodes.append(address)
+            l.info('Shutdown node ' + address)
+        except TestTimeout:
+            self.failed_nodes.add(address)
+            self.shutdown_failed_results.append(TextTestResult(node_name, 'Node timed-out when signaled to shutdown.'))
+            l.exception('Shutdown timeout on node ' + address)
+        except KeyValueError, error:
+            self.failed_nodes.add(address)
+            self.shutdown_failed_results.append(TextTestResult(node_name, 'Node returned error when signaled to shutdown. ' + str(error)))
+            l.exception('Shutdown error (' + hex(error.ERROR_CODE) + ') on node ' + address)
+        except IOError, error:
+            self.failed_nodes.add(address)
+            self.shutdown_failed_results.append(TextTestResult(node_name, 'Connection error on node when signaled to shutdown. ' + str(error)))
+            l.exception('Shutdown connection error on node ' + address)
+        except Exception, error:
+            self.failed_nodes.add(address)
+            self.shutdown_failed_results.append(TextTestResult(node_name, 'Node does not want to shutdown. ' + str(error)))
+            l.exception('Shutdown unknown error on node ' + address)
+        finally:
+            timeout.cancel()
+
+        self.running_nodes.remove(address)
+
+    def summarize_node_shutdown(self):
+        if len(self.shutdown_failed_results) > 0:
+            self.results.extend(self.shutdown_failed_results)
         else:
             self.results.append(TextTestResult(
                 'Node shutdown',
                 'All nodes accepted the shutdown command.'
             ))
-        if len(results) > 0:
+        if len(self.shutdown_results) > 0:
             self.results.append(ClusteredTestResult(
                 map(self.get_node_name, self.shutdown_nodes),
-                results
+                self.shutdown_results
             ))
         else:
             self.results.append(TextTestResult(

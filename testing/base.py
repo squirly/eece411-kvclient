@@ -18,8 +18,9 @@ class TestError(Exception):
 class Test(object):
     TIMEOUT = 10
 
-    def __init__(self, addresses):
+    def __init__(self, addresses, **extra):
         self.addresses = addresses
+        self.extra = extra
 
     def resolve_address(self, address):
         address_components = address.split(':')
