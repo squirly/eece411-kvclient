@@ -87,7 +87,7 @@ class RollingShutdownTest(ClusteredComplianceTest):
             node_name = self.get_node_name(address)
             ssh_login = '{slice}@{node}'.format(
                 slice=self.slices[self.extra['slice']],
-                node=node_name)
+                node=node_name.split(':')[0])
             ssh_command = "ssh {ssh_login} 'sudo killall -u {user} -9'"
             results = set()
             for user in ['$USER', 'root']:

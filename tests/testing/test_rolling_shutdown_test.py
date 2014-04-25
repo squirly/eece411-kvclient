@@ -10,7 +10,7 @@ class MockRollingShutdownTest(RollingShutdownTest):
     def reset_test(self):
         pass
 
-    def rest(self, time):
+    def rest(self, time=None):
         pass
 
 

@@ -130,8 +130,10 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
         self.results.append(TextTestResult('Last test took:', str(time.span.total_seconds()-rests*self.rest_time) + 's'))
         l.info('Compliance test finished in ' + str(time.span.total_seconds()-rests*self.rest_time) + 's')
 
-    def rest(self):
-        gevent.sleep(self.rest_time)
+    def rest(self, time=None):
+        if time is None:
+            time = self.rest_time
+        gevent.sleep(time)
 
     def get_client(self, addresses=None):
         if addresses is None:
