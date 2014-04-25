@@ -51,7 +51,7 @@ class TestRollingShutdownTest(object):
                                    'node8.com:9000': '3.7.1.2:9000'}
 
         subprocess = MagicMock()
-        subprocess.call.side_effect = [0, 0, 1, 0]
+        subprocess.call.side_effect = [0, 1, 5, 255]
         with patch('testing.rolling_shutdown_test.subprocess', subprocess):
             test.run_test()
 

@@ -90,6 +90,7 @@ class RollingShutdownTest(ClusteredComplianceTest):
                 node=node_name.split(':')[0])
             ssh_command = "sudo killall -u {user} -9"
             results = set()
+            successful_result_values = [0, 1, 255]
             for user in ['$USER', 'root']:
                 command = ssh_command.format(user=user)
                 l.info('Running command (' + command + ') on ' + ssh_login)
@@ -98,7 +99,7 @@ class RollingShutdownTest(ClusteredComplianceTest):
                 except:
                     l.exception('Command failed')
                     result = -1
-                if result != 0:
+                if result not in successful_result_values:
                     results.add(result)
             if len(results) == 0:
                 self.killed_nodes.append(address)
