@@ -159,7 +159,7 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
         timeout = Timeout(self.shutdown_timeout, TestTimeout())
         timeout.start()
         try:
-            self.get_client(address).shutdown()
+            self.get_client([address]).shutdown()
             self.shutdown_results.append(TextTestResult(node_name, 'Shutdown signal sent.'))
             self.shutdown_nodes.append(address)
             l.info('Shutdown node ' + address)
@@ -209,7 +209,7 @@ class ClusteredComplianceTest(MassTestBase, ClusteredNodesTest):
             timeout = Timeout(self.shutdown_timeout)
             timeout.start()
             try:
-                TestClient(node).put('test', self.get_value('test'))
+                self.get_client([node]).put('test', self.get_value('test'))
                 results.append(TextTestResult(self.get_node_name(node), 'Node still responding to requests.'))
             except:
                 pass

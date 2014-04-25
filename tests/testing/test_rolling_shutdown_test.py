@@ -62,4 +62,10 @@ class TestRollingShutdownTest(object):
         assert len(test.shutdown_nodes) == 3
         assert len(test.killed_nodes) == 1
 
+        assert test.client.shutdown.call_count == 4
+
+        assert subprocess.call.call_count == 4
+
         assert test.client.get.call_count == 64
+        assert test.client.put.call_count == 64
+        assert test.client.delete.call_count == 24
