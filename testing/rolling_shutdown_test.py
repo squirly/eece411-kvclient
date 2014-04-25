@@ -88,10 +88,16 @@ class RollingShutdownTest(ClusteredComplianceTest):
             ssh_login = '{slice}@{node}'.format(
                 slice=self.slices[self.extra['slice']],
                 node=node_name.split(':')[0])
-            ssh_command = "ssh {ssh_login} 'sudo killall -u {user} -9'"
+            ssh_command = "sudo killall -u {user} -9"
             results = set()
             for user in ['$USER', 'root']:
-                result = subprocess.call(ssh_command.format(ssh_login=ssh_login, user=user))
+                command = ssh_command.format(user=user)
+                l.info('Running command (' + command + ') on ' + ssh_login)
+                try:
+                    result = subprocess.call(['ssh', '-o', 'UserKnownHostsFile=/dev/null', '-o', 'StrictHostKeyChecking=no', ssh_login, command])
+                except:
+                    l.exception('Command failed')
+                    result = -1
                 if result != 0:
                     results.add(result)
             if len(results) == 0:
